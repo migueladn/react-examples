@@ -4,7 +4,7 @@ var webpack = require('webpack');
 module.exports = {
   context: path.join(__dirname, 'app'),
   entry: ['./index.html', './app.js'],
-  output: { 
+  output: {
     path: path.join(__dirname, 'dist'),
     filename: 'bundle.js'
   },
@@ -23,18 +23,18 @@ module.exports = {
         loader: "file-loader?name=[name].[ext]",
       },
       {
-        test: /\.css$/, 
-        loader: "style-loader!css-loader" 
+        test: /\.css$/,
+        loader: "style-loader!css-loader"
       },
-      { 
-        test: /\.png$/, 
-        loader: "url-loader?limit=100000" 
+      {
+        test: /\.png$/,
+        loader: "url-loader?limit=100000"
       },
-      { 
-        test: /\.jpg$/, 
-        loader: "file-loader" 
+      {
+        test: /\.jpg$/,
+        loader: "file-loader"
       }
-    ]
+    ],
   },
   devServer: {
     historyApiFallback: true
