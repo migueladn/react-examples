@@ -22,6 +22,12 @@ var App = React.createClass({
   loadSampleData: function() {
     this.setState(samples);
   },
+  //user navigates to a /conversation/
+  componentWillMount: function() {
+    if ('human' in this.props.params) {
+      this.loadSampleData();
+    }
+  },
   render: function() {
     return(
       <div>
