@@ -1,6 +1,13 @@
 //requires
 var React = require('react');
 var ReactDOM = require('react-dom');
+var ReactRouter = require('react-router');
+
+//importing what we need for routing
+var browserHistory = ReactRouter.browserHistory;
+var Route = ReactRouter.Route;
+var Router = ReactRouter.Router;
+var Link = ReactRouter.Link;
 
 var samples = require('./sample-data');
 
@@ -8,17 +15,12 @@ var App = React.createClass({
   getInitialState: function(){
     return {
       "humans": {},
-      "stores": {},
-      "selectedConversation": []
+      "stores": {}
+
     }
   },
   loadSampleData: function() {
     this.setState(samples);
-  },
-  setSelectedConversation: function(human_index) {
-    this.setState({
-      selectedConversation: this.state.humans[human_index].conversations
-    });
   },
   render: function() {
     return(
@@ -27,13 +29,13 @@ var App = React.createClass({
         <button onClick={this.loadSampleData}>Load Sample Data</button>
         <div className="container">
           <div className="column">
-            <InboxPane humans={this.state.humans} setSelectedConversation={this.setSelectedConversation}/>
+            <InboxPane humans={this.state.humans} />
           </div>
           <div className="column">
-            <ConversationPane  conversation={this.state.selectedConversation} />
+            {this.props.children || "Select a Conversation from the Inbox"}
           </div>
           <div className="column">
-
+            <StorePane stores={this.state.stores} />
           </div>
         </div>
       </div>
@@ -43,7 +45,7 @@ var App = React.createClass({
 
 var InboxPane = React.createClass({
   renderInboxItem: function(human) {
-    return <InboxItem key={human} index={human} details={this.props.humans[human]} setSelectedConversation={this.props.setSelectedConversation} />;
+    return <InboxItem key={human} index={human} details={this.props.humans[human]} />;
   },
   render: function() {
     return(
@@ -74,13 +76,10 @@ var InboxItem = React.createClass({
     var lastMessage = conversations.sort(this.sortByDate)[0];
     return lastMessage.who + ' said: "' + lastMessage.text + '" @' + lastMessage.time;
   },
-  setSelected: function() {
-    this.props.setSelectedConversation(this.props.index);
-  },
   render: function() {
     return(
       <tr>
-        <td><a onClick={this.setSelected}>{this.messageSummary(this.props.details.conversations)}</a></td>
+        <td><Link to={'/conversation/'+encodeURIComponent(this.props.index)}>{this.messageSummary(this.props.details.conversations)}</Link></td>
         <td>{this.props.index}</td>
         <td>{this.props.details.orders.sort(this.sortByDate)[0].status}</td>
       </tr>
@@ -97,6 +96,17 @@ var Message = React.createClass({
 });
 
 var ConversationPane = React.createClass({
+  loadSampleData: function(human) {
+    this.setState({conversation: samples.humans[human].conversations});
+  },
+  //Handle when User navigates / to /conversation/:human
+  componentWillMount: function() {
+    this.loadSampleData(this.props.params.human);
+  },
+  //Handle when User navigates /conversation/Rami to /conversation/Jeremy
+  componentWillReceiveProps: function(nextProps) {
+    this.loadSampleData(nextProps.params.human);
+  },
   renderMessages: function(val) {
     return <Message who={val.who} text={val.text} key={val.time.getTime()} />
   },
@@ -104,13 +114,53 @@ var ConversationPane = React.createClass({
     return (
       <div id="conversation-pane">
         <h1>Conversation</h1>
-        <h3>Select a conversation from the inbox</h3>
+        <h3>{this.props.params.human}</h3>
         <div id="messages">
-          {this.props.conversation.map(this.renderMessages)}
+          {this.state.conversation.map(this.renderMessages)}
         </div>
       </div>
     )
   }
 });
 
-ReactDOM.render(<App />, document.getElementById('main'));
+var StorePane = React.createClass({
+    renderStore: function(store) {
+        return <Store key={store} index={store} details={this.props.stores[store]} />
+    },
+    render: function() {
+      return(
+        <div id="stores-pane">
+          <h1>Stores & Ovens</h1>
+          <ul>
+            {Object.keys(this.props.stores).map(this.renderStore)}
+          </ul>
+        </div>
+      )
+    }
+});
+
+var Store = React.createClass({
+  getCount: function(status){
+    return this.props.details.orders.filter(function(n) {return n.status === status}).length;
+  },
+  render: function() {
+    return(
+
+      <li>
+        <p>{this.props.index}</p>
+        <p>Orders Confirmer: {this.getCount("Confirmed")}</p>
+        <p>Orders In The Oven: {this.getCount("In The Oven")}</p>
+        <p>Orders Delivered: {this.getCount("Delivered")}</p>
+      </li>
+    )
+  }
+});
+
+ReactDOM.render(
+  <Router history={browserHistory}>
+
+    <Route path="/" component={App}>
+        <Route path="/conversation/:human" component={ConversationPane}></Route>
+    </Route>
+  </Router>
+  , document.getElementById('main'));
