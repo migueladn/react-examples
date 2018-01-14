@@ -25,6 +25,8 @@
     "html-webpack-plugin": "^2.30.1",
     "nodemon": "^1.14.11",
     "react": "^16.2.0",
-    "react-dom": "^16.2.0"
+    "react-dom": "^16.2.0",
+    "react-router": "^4.2.0",
+    "react-router-dom": "^4.2.2"
   }
 }

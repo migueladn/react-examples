@@ -6,7 +6,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 export default {
   devtool: 'eval-source-map',
   entry: [
-    'webpack-hot-middleware/client',
+    'webpack-hot-middleware/client?reload=true',
     path.join(__dirname, '/client/index.js')
   ],
   output: {
@@ -29,7 +29,7 @@ export default {
       {
         test: /\.js$/,
         include: path.join(__dirname, 'client'),
-        loaders: ['react-hot-loader/webpack','babel-loader']
+        loaders: ['babel-loader']
       }
     ]
   },
