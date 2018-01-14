@@ -5,6 +5,7 @@ import {Router, Route, browserHistory} from 'react-router';
 
 import ConversationPane from './components/ConversationPane';
 import App from './components/App';
+require("./app.css");
 
 ReactDOM.render((
   <Router history={browserHistory}>
